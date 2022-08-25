@@ -1,4 +1,3 @@
-from base64 import urlsafe_b64encode
 from django.contrib import messages
 from django.shortcuts import render
 from .forms import RegistrationForm
@@ -9,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 # verification
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
@@ -37,9 +36,9 @@ def register(request):
             current_site = get_current_site(request)
             mail_subject = 'Please activate your account'
             message = render_to_string('accounts/accounts_verification_email.html', {
-                'user' :user,
+                'user': user,
                 'domain': current_site,
-                'uid': urlsafe_b64encode(force_bytes(user.pk)),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': default_token_generator.make_token(user),
             })
             to_email = email
