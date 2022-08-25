@@ -1,7 +1,4 @@
-from asyncio import current_task
 from base64 import urlsafe_b64encode
-from email.message import EmailMessage
-from xml.dom.pulldom import default_bufsize
 from django.contrib import messages
 from django.shortcuts import render
 from .forms import RegistrationForm
@@ -50,7 +47,7 @@ def register(request):
             send_email.send()
 
             messages.success(request, 'Registrations successful.')
-            return redirect('register')
+            return redirect('/accounts/login/?command=verification&email='+email)
         else:
             messages.error(request, 'Not valid Forms.')
     else:
