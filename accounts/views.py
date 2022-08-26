@@ -30,23 +30,27 @@ def register(request):
                 password=password,
             )
             user.phone_number = phone_number
+            user.is_active = True
             user.save()
+            try:
+                # USER Activation by Email
+                current_site = get_current_site(request)
+                mail_subject = 'Please activate your account'
+                message = render_to_string('accounts/accounts_verification_email.html', {
+                    'user': user,
+                    'domain': current_site,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': default_token_generator.make_token(user),
+                })
+                to_email = email
+                send_email = EmailMessage(mail_subject, message, to=[to_email])
+                send_email.send()
 
-            # USER Activation by Email
-            current_site = get_current_site(request)
-            mail_subject = 'Please activate your account'
-            message = render_to_string('accounts/accounts_verification_email.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
+                messages.success(request, 'Registrations successful.')
+                return redirect('/accounts/login/?command=verification&email='+email)
 
-            messages.success(request, 'Registrations successful.')
-            return redirect('/accounts/login/?command=verification&email='+email)
+            except:
+                messages.error(request, 'Not Send Email')
         else:
             messages.error(request, 'Not valid Forms.')
     else:
